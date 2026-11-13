@@ -1,0 +1,22 @@
+{
+  "name": "geel1834-map",
+  "version": "0.7.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "patch": "npm version patch",
+    "minor": "npm version minor",
+    "major": "npm version major"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.18",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.19",
+    "vite": "^5.0.0"
+  },
+  "dependencies": {
+    "maplibre-gl": "^3.6.2"
+  }
+}

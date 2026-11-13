@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Geel 1834 - Historische Kaartervaring</title>
+
+  <!-- MapLibre GL CSS & JS -->
+  <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+  <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+</head>
+
+<body data-loading="map regions details search" class="group/body h-screen w-screen overflow-hidden bg-canvas font-sans text-ink-base">
+
+  <div id="app-container" data-collapsed="false" data-mode="overview"
+    class="group/app relative grid h-screen w-screen grid-cols-app-stack grid-rows-app-stack overflow-hidden transition-[grid-template-columns] duration-300 ease-smooth data-[collapsed=true]:grid-rows-app-stack-rail motion-reduce:transition-none md:grid-cols-app md:grid-rows-app md:data-[collapsed=true]:grid-cols-app-rail md:data-[collapsed=true]:grid-rows-app">
+
+    <!-- Left control & narrative panel -->
+    <aside id="story-panel" aria-label="Kaartbediening"
+      class="area-panel z-10 flex min-h-0 flex-col overflow-hidden border-t border-line bg-panel px-4 pb-1 pt-3 shadow-panel transition-[padding] duration-300 ease-smooth rail:py-2 motion-reduce:transition-none md:border-r md:border-t-0 md:px-5 md:pb-2 md:pt-5 md:rail:px-2 md:rail:py-4">
+
+      <!-- Header: title, (help button added by JS), collapse toggle -->
+      <div id="panel-header" class="mb-3 flex shrink-0 items-center justify-between">
+        <h1 class="text-lg font-bold tracking-snug text-ink-title md:text-title rail:hidden">Geel (1834 vs Nu)</h1>
+        <button id="sidebar-toggle" type="button" aria-label="Menu in- of uitklappen" title="Menu in- of uitklappen"
+          aria-expanded="true" aria-controls="panel-content"
+          class="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md bg-primary text-white transition-colors hover:bg-primary-hover">
+          <svg class="transition-transform duration-300 rail:rotate-180" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false">
+            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+          </svg>
+        </button>
+      </div>
+
+      <div id="panel-content" class="flex min-h-0 flex-1 flex-col rail:hidden">
+        <div class="-m-1.5 min-h-0 flex-1 overflow-y-auto p-1.5 [scrollbar-color:theme(colors.ink.faint)_transparent] [scrollbar-width:thin]">
+
+          <!-- Overview mode (zoomed out): pick a region -->
+          <div id="region-controls"
+            class="grid translate-y-0 grid-rows-[1fr] opacity-100 transition-[grid-template-rows,opacity,transform,visibility] duration-[400ms] motion-reduce:transition-none detail:pointer-events-none detail:invisible detail:-translate-y-2 detail:grid-rows-[0fr] detail:opacity-0">
+            <div class="-m-1.5 min-h-0 overflow-hidden p-1.5">
+              <div class="mb-4" role="group" aria-labelledby="region-heading">
+                <span id="region-heading" class="mb-2 block text-sm font-semibold text-ink-medium">Kies een gebied</span>
+                <div id="region-list" class="grid grid-cols-regions gap-2">
+                  <span class="relative hidden h-10 overflow-hidden rounded-md bg-panel-muted after:absolute after:inset-0 after:-translate-x-full after:animate-sweep after:bg-shimmer-light after:content-[''] loading-regions:block motion-reduce:after:animate-none" aria-hidden="true"></span>
+                  <span class="relative hidden h-10 overflow-hidden rounded-md bg-panel-muted after:absolute after:inset-0 after:-translate-x-full after:animate-sweep after:bg-shimmer-light after:content-[''] after:[animation-delay:100ms] loading-regions:block motion-reduce:after:animate-none" aria-hidden="true"></span>
+                  <span class="relative hidden h-10 overflow-hidden rounded-md bg-panel-muted after:absolute after:inset-0 after:-translate-x-full after:animate-sweep after:bg-shimmer-light after:content-[''] after:[animation-delay:200ms] loading-regions:block motion-reduce:after:animate-none" aria-hidden="true"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detail mode (zoomed in) -->
+          <div id="detail-controls"
+            class="grid translate-y-0 grid-rows-[1fr] opacity-100 transition-[grid-template-rows,opacity,transform,visibility] duration-[400ms] motion-reduce:transition-none overview:pointer-events-none overview:invisible overview:-translate-y-2 overview:grid-rows-[0fr] overview:opacity-0">
+            <div id="detail-inner" class="-m-1.5 min-h-0 overflow-hidden p-1.5">
+              <a href="#map" data-skip="map"
+                class="sr-only focus:not-sr-only focus:mb-3 focus:block focus:rounded-md focus:bg-primary focus:px-4 focus:py-2.5 focus:text-ui focus:font-semibold focus:text-white focus:no-underline">Naar de kaart</a>
+
+              <div class="mb-4 border-t border-line-soft">
+
+                <!-- Layers -->
+                <section class="border-b border-line-soft">
+                  <h2>
+                    <button id="acc-layers-btn" data-acc type="button" aria-expanded="true" aria-controls="acc-layers"
+                      class="group/acc flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-4 text-left text-ui font-semibold text-ink transition-colors hover:bg-panel-hover">
+                      <span id="acc-layers-title" class="flex-1">Lagen</span>
+                      <span class="size-2 rotate-45 border-b-2 border-r-2 border-ink-soft transition-transform duration-[250ms] ease-smooth group-aria-expanded/acc:-rotate-[135deg]" aria-hidden="true"></span>
+                    </button>
+                  </h2>
+                  <div id="acc-layers"
+                    class="grid grid-rows-[1fr] overflow-hidden px-1 pb-3 opacity-100 transition-[grid-template-rows,opacity,padding,visibility] duration-300 ease-smooth closed:pointer-events-none closed:invisible closed:grid-rows-[0fr] closed:py-0 closed:opacity-0 motion-reduce:transition-none [&>*]:min-h-0 [&>*]:overflow-hidden">
+                    <div class="flex flex-col" role="group" aria-labelledby="acc-layers-title">
+
+                      <div data-layer-row class="flex min-h-10 items-center gap-2.5">
+                        <input type="checkbox" id="layer-toggle-parcels" checked
+                          class="m-0 grid size-5 shrink-0 cursor-pointer appearance-none place-content-center rounded-md border-2 border-layer-parcels-edge bg-panel transition-colors checked:bg-layer-parcels after:h-[0.5625rem] after:w-[0.3125rem] after:-translate-y-px after:rotate-45 after:scale-0 after:border-b-2 after:border-r-2 after:border-primary-dark after:transition-transform after:duration-100 after:content-[''] checked:after:scale-100 forced-colors:appearance-auto" />
+                        <label for="layer-toggle-parcels" class="m-0 block flex-1 cursor-pointer select-none py-2 text-ui text-ink">Percelen</label>
+                      </div>
+
+                      <div data-layer-row class="flex min-h-10 items-center gap-2.5">
+                        <input type="checkbox" id="layer-toggle-roads" checked
+                          class="m-0 grid size-5 shrink-0 cursor-pointer appearance-none place-content-center rounded-md border-2 border-layer-roads-edge bg-panel transition-colors checked:bg-layer-roads after:h-[0.5625rem] after:w-[0.3125rem] after:-translate-y-px after:rotate-45 after:scale-0 after:border-b-2 after:border-r-2 after:border-white after:transition-transform after:duration-100 after:content-[''] checked:after:scale-100 forced-colors:appearance-auto" />
+                        <label for="layer-toggle-roads" class="m-0 block flex-1 cursor-pointer select-none py-2 text-ui text-ink">Wegen</label>
+                      </div>
+
+                      <div data-layer-row class="flex min-h-10 items-center gap-2.5">
+                        <input type="checkbox" id="layer-toggle-waterways" checked
+                          class="m-0 grid size-5 shrink-0 cursor-pointer appearance-none place-content-center rounded-md border-2 border-layer-waterways-edge bg-panel transition-colors checked:bg-layer-waterways after:h-[0.5625rem] after:w-[0.3125rem] after:-translate-y-px after:rotate-45 after:scale-0 after:border-b-2 after:border-r-2 after:border-white after:transition-transform after:duration-100 after:content-[''] checked:after:scale-100 forced-colors:appearance-auto" />
+                        <label for="layer-toggle-waterways" class="m-0 block flex-1 cursor-pointer select-none py-2 text-ui text-ink">Waterlopen</label>
+                      </div>
+
+                      <div data-layer-row class="flex min-h-10 items-center gap-2.5">
+                        <input type="checkbox" id="layer-toggle-housing" checked
+                          class="m-0 grid size-5 shrink-0 cursor-pointer appearance-none place-content-center rounded-md border-2 border-layer-housing-edge bg-panel transition-colors checked:bg-layer-housing after:h-[0.5625rem] after:w-[0.3125rem] after:-translate-y-px after:rotate-45 after:scale-0 after:border-b-2 after:border-r-2 after:border-white after:transition-transform after:duration-100 after:content-[''] checked:after:scale-100 forced-colors:appearance-auto" />
+                        <label for="layer-toggle-housing" class="m-0 block flex-1 cursor-pointer select-none py-2 text-ui text-ink">Bebouwing</label>
+                      </div>
+
+                    </div>
+                  </div>
+                </section>
+
+                <!-- Visibility (opacity slider). layers.js expects #opacity-slider and #opacity-value -->
+                <section class="border-b border-line-soft">
+                  <h2>
+                    <button id="acc-opacity-btn" data-acc type="button" aria-expanded="false" aria-controls="acc-opacity"
+                      class="group/acc flex min-h-11 w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-4 text-left text-ui font-semibold text-ink transition-colors hover:bg-panel-hover">
+                      <span class="flex-1">Zichtbaarheid</span>
+                      <span id="opacity-value" class="flex-none text-small font-medium tabular-nums text-ink-soft">100%</span>
+                      <span class="size-2 rotate-45 border-b-2 border-r-2 border-ink-soft transition-transform duration-[250ms] ease-smooth group-aria-expanded/acc:-rotate-[135deg]" aria-hidden="true"></span>
+                    </button>
+                  </h2>
+                  <div id="acc-opacity"
+                    class="grid grid-rows-[1fr] overflow-hidden px-1 pb-3 opacity-100 transition-[grid-template-rows,opacity,padding,visibility] duration-300 ease-smooth closed:pointer-events-none closed:invisible closed:grid-rows-[0fr] closed:py-0 closed:opacity-0 motion-reduce:transition-none [&>*]:min-h-0 [&>*]:overflow-hidden">
+                    <div>
+                      <input type="range" id="opacity-slider" min="0" max="100" value="100" aria-label="Zichtbaarheid van de historische lagen"
+                        class="mb-1 mt-2 block h-1.5 w-full cursor-pointer accent-primary" />
+                    </div>
+                  </div>
+                </section>
+              </div>
+
+              <button id="btn-reset" type="button"
+                class="mt-1 block min-h-10 w-full cursor-pointer rounded-lg border border-line-strong bg-panel px-3 py-2 text-sm font-semibold text-primary-dark transition-colors hover:border-ink-faint hover:bg-panel-muted active:bg-line">Algemeen Overzicht</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mx-3 mb-8 mt-0 hidden select-none text-center text-xs font-bold uppercase tracking-[0.125rem] text-ink-faint md:mt-8 md:rotate-180 md:[writing-mode:vertical-lr] rail:block">Geel 1834</div>
+    </aside>
+
+    <!-- Floating search bar (overlays the map cell; only the box catches the pointer) -->
+    <div class="area-map pointer-events-none z-30 flex items-start justify-center p-3 md:p-5">
+      <div role="search"
+        class="pointer-events-auto relative flex w-full max-w-[34rem] flex-col overflow-hidden rounded-card border border-line bg-panel shadow-float backdrop-blur-md after:pointer-events-none after:absolute after:inset-0 after:-translate-x-full after:bg-shimmer-search after:opacity-0 after:transition-opacity after:duration-[400ms] after:content-[''] focus-within:outline focus-within:outline-[3px] focus-within:outline-offset-2 focus-within:outline-focus loading-search:after:animate-sweep-search loading-search:after:opacity-100 motion-reduce:after:animate-none">
+        <input id="search-input" type="search" placeholder="Perceelgegevens laden…" aria-label="Zoek op eigenaar of perceel" autocomplete="off" disabled
+          class="w-full bg-transparent bg-search-icon bg-no-repeat py-3 pl-[2.625rem] pr-4 text-ui text-ink outline-none transition-colors [background-position:0.875rem_center] placeholder:text-ink-faint hover:bg-panel-subtle/50 focus:bg-panel focus-visible:outline-none loading-search:cursor-progress [&::-webkit-search-cancel-button]:cursor-pointer">
+        <div id="search-status" class="sr-only" aria-live="polite"></div>
+        <ul id="search-results" role="listbox" hidden
+          class="relative m-0 max-h-[42vh] w-full list-none overflow-y-auto border-t border-line-soft bg-panel p-1.5"></ul>
+      </div>
+    </div>
+
+    <!-- Map -->
+    <div id="map" role="main"
+      class="area-map relative h-full min-w-0 before:pointer-events-none before:absolute before:inset-0 before:z-[1] before:bg-skeleton before:bg-map-grid before:opacity-0 before:transition-opacity before:duration-[600ms] before:content-[''] after:pointer-events-none after:absolute after:inset-0 after:z-[1] after:-translate-x-full after:bg-shimmer-map after:opacity-0 after:transition-opacity after:duration-[600ms] after:content-[''] loading-map:before:opacity-100 loading-map:after:animate-sweep-slow loading-map:after:opacity-100 motion-reduce:after:animate-none"></div>
+
+    <!-- Details drawer (non-modal dialog; JS toggles [hidden]) -->
+    <div class="area-map pointer-events-none z-20 flex items-end justify-end p-3 md:p-6">
+      <section id="details-drawer" hidden
+        class="pointer-events-auto w-full rounded-card border border-line bg-panel/95 p-4 shadow-float backdrop-blur-md md:max-w-[23rem]">
+        <div class="mb-3 flex items-center justify-between border-b border-line-soft pb-2">
+          <h2 id="drawer-title" class="text-base font-bold text-primary-dark">Eigenschapsdetails</h2>
+          <button id="close-drawer-btn" type="button" aria-label="Sluiten" title="Sluiten"
+            class="flex size-7 cursor-pointer items-center justify-center rounded-full bg-panel-hover text-lg text-ink-soft transition-colors hover:bg-panel-muted hover:text-ink-strong">&times;</button>
+        </div>
+        <dl id="drawer-content" class="flex max-h-[45vh] flex-col gap-1.5 overflow-y-auto"></dl>
+      </section>
+    </div>
+
+    <!-- Onboarding hint lands here (built by ui.js) -->
+    <div id="onboarding-host"
+      class="area-map pointer-events-none z-20 flex items-end justify-center p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] md:p-6 md:pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]"></div>
+
+    <!-- Footer -->
+    <footer id="about-footer" class="area-footer relative z-10 min-w-0 bg-panel px-4 pb-1 shadow-panel md:border-r md:px-5 md:pb-2 rail:hidden">
+      <div class="mt-2 border-t border-line-soft">
+        <h2>
+          <button id="about-btn" data-acc type="button" aria-expanded="true" aria-controls="about-panel"
+            class="group/acc flex min-h-10 w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-4 text-left text-sm font-semibold text-ink-medium transition-colors hover:bg-panel-hover">
+            <span class="flex-1">Over deze kaart</span>
+            <span class="size-2 rotate-45 border-b-2 border-r-2 border-ink-soft transition-transform duration-[250ms] ease-smooth group-aria-expanded/acc:-rotate-[135deg]" aria-hidden="true"></span>
+          </button>
+        </h2>
+        <div id="about-panel" class="max-h-[20vh] overflow-y-auto p-1 pb-3 md:max-h-[35vh]">
+          <p class="mb-3 text-sm leading-[1.55] text-ink-soft">Ontdek hoe perceelsgrenzen, wegen en waterlopen zich gedurende bijna twee eeuwen hebben ontwikkeld.</p>
+          <div class="flex flex-wrap justify-between gap-x-4 gap-y-1 text-small text-ink-soft">
+            <span id="app-author">Gemaakt door <a class="text-link underline underline-offset-[0.15em] hover:decoration-2" href="https://www.linkedin.com/in/michielve/" target="_blank" rel="noopener noreferrer">Michiel Van Eynde</a></span>
+            <span id="app-version"><span class="relative inline-block h-2.5 w-20 overflow-hidden rounded bg-panel-muted align-middle after:absolute after:inset-0 after:-translate-x-full after:animate-sweep after:bg-shimmer-light after:content-[''] motion-reduce:after:animate-none" aria-hidden="true"></span></span>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+
+</html>
