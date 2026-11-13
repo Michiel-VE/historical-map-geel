@@ -39,3 +39,34 @@ src/
 ├── cache.js      # IndexedDB caching layer
 ├── worker.js     # Off-thread background parser worker
 └── ui.js         # Sidebar, drawer, panels, and accessibility controls
+```
+
+---
+
+## Getting Started
+
+Clone the repository and install dependencies:
+
+```bash
+git clone https://github.com/Michiel-VE/historical-map-geel.git
+cd historical-map-geel
+npm install
+```
+
+Start the local development server:
+
+```bash
+npm run dev
+```
+
+Build for production:
+
+```bash
+npm run build
+```
+
+---
+
+## Data Setup
+
+The application loads regional historical data manifests (`regions.json`) and vector files (`parcels.geojson`, `roads.geojson`, etc.) dynamically from the `assets/data/` directory. Ensure your regional data folders are structured correctly before running builds.
