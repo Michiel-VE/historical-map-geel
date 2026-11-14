@@ -305,8 +305,8 @@ const LAYER_DEFS = [
     ],
     clickable: ['waterways-fill', 'waterways-line'],
     popup: (p) => ({
-      title: p.WATERLOPEN || 'Waterloop',
-      rows: [{ label: 'Naam', value: p.Naam || p.NAAM || 'Onbekend' }]
+      title: p.WATERLOPEN || p.Waterlopen || 'Waterloop',
+      rows: [{ label: 'Naam', value: p.Naam || p.NAAM || p.naam|| 'Onbekend' }]
     })
   },
   {
