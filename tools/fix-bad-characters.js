@@ -19,4 +19,4 @@ const FIX = {
       fs.writeFileSync(p, t, 'utf8');
     }
   }
-})('assets/data');
+})('public/assets/data');

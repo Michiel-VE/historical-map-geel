@@ -18,7 +18,7 @@ const results = {};
       }
     }
   }
-})('assets/data');
+})('public/assets/data');
 
 const rows = Object.entries(results)
   .sort((a, b) => b[1].count - a[1].count)

@@ -265,8 +265,8 @@ const LAYER_DEFS = [
         { label: 'Eigenaar', value: p.EIGENAAR ? String(p.EIGENAAR).replace(/,/g, ' ') : 'Onbekend' },
         { label: 'Beroep', value: p.BEROEP || 'N/A' },
         { label: 'Soort landgebruik', value: `${p.SOORT || 'N/A'}${p.KLASSE ? ` (Klasse ${p.KLASSE})` : ''}` },
-        { label: 'Oppervlakte', value: p.GROOTTE || formatArea(p.ha, p.a, p.ca) },
-        { label: 'Artikel', value: p.ARTIKEL || p.ARTIKELNR || 'N/A' },
+        { label: 'Oppervlakte', value: p.GROOTTE || p.OPPERVL || formatArea(p.ha, p.a, p.ca) },
+        { label: 'Artikel', value: p.ARTIKEL || p.ARTNR || p.ARTIKELNR || 'N/A' },
         { label: 'Door', value: p.DOOR || 'N/A' }
       ];
       if (p.Belasting) rows.push({ label: 'Belasting', value: `BEF ${p.Belasting}` });
@@ -306,7 +306,7 @@ const LAYER_DEFS = [
     clickable: ['waterways-fill', 'waterways-line'],
     popup: (p) => ({
       title: p.WATERLOPEN || 'Waterloop',
-      rows: [{ label: 'Naam', value: p.Naam || 'Onbekend' }]
+      rows: [{ label: 'Naam', value: p.Naam || p.NAAM || 'Onbekend' }]
     })
   },
   {
