@@ -4,7 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const dataDir = path.join(__dirname, '..', 'assets', 'data');
+const dataDir = path.join(__dirname, '..', 'public', 'assets', 'data');
 
 const regions = fs.readdirSync(dataDir, { withFileTypes: true })
   .filter(d => d.isDirectory() && fs.existsSync(path.join(dataDir, d.name, 'section.geojson')))
